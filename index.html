@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora</title>
+    <style>
+        body{
+            background-color: #868e96;
+        }
+        #container{
+            background: #302e30;
+            width: 350px;
+            height: 450px;
+            border-radius: 20px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        #output{
+            width: 90%;
+            height: 70px;
+            background-color: #d8d7df;
+            margin: 20px auto;
+            text-align: right;  
+            border-radius: 5px; 
+        }
+        .output-row{
+            background: none;
+            border: none;
+            text-align: right;
+            width: 95%;
+            height: 45%;
+            font-size: 1.5em;
+            font-weight: 600;
+            padding-right: 10px;
+            padding-bottom: 0;
+        }
+        #output1, #output2{
+            border-bottom: 2px dashed #b5b0bb;
+        }
+        #btns{
+            margin: 0px auto;
+            margin-bottom: 20px;
+        }
+        .btn-row{
+            display: flex;
+        }
+        .btn{
+            width: 55px;
+            height: 55px;
+            margin: 5px;
+            border: 1px solid #000;
+            border-radius: 5px;
+            background-color: #44494e;
+            color: #f2f2f2;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+        .btn:hover{
+            background: #2e3135;
+        }
+        #onoff{
+            width: 122px;
+        }
+        #clear{
+            width: 188px;
+        }
+        #equals{
+            height: 122px;
+            position: absolute;
+        }
+    </style>
+    <script>
+        var setClear=0;
+        var onoff=1;
+        function clearScreen(){
+            if(!onoff) return;
+            //clean first row if second is empty
+            if(document.getElementById("output2").value== ""){
+                document.getElementById("output1").value = "";
+                pastResult=0;
+            }
+            //clean second row
+            document.getElementById("output2").value = "";
+            setClear=0;
+        }     
+        function writeNumber(digit){
+            if(!onoff) return;
+            if(setClear) clearScreen();
+            //if second row empty and input is '.' places '0.'
+            if(digit == '.' && document.getElementById("output2").value == ""){
+                document.getElementById("output2").value += "0"
+            }
+            //places digit in second row
+            document.getElementById("output2").value += digit;
+        }
+        function switchSignal(){
+            if(!onoff) return;
+            //changes signal of second row
+            document.getElementById("output2").value = "-" + document.getElementById("output2").value;
+        }
+        function solve(digit){
+            if(!onoff) return;
+            var lastNumber;
+            var currentlyNumber = document.getElementById("output2").value;
+            var lastValue = document.getElementById("output1").value;
+            var result;
+            setClear = 0;
+            //both rows empty = no operation
+            if(currentlyNumber == '' && lastValue == '') return;
+
+            //first row empty and second with number = puts number and operation on the first one
+            if(currentlyNumber != '' && lastValue == ''){
+                document.getElementById("output1").value = currentlyNumber + " " + digit;
+                document.getElementById("output2").value = "";
+                return;
+            }
+            
+            //second row empty and first one with number+operator = changes operator
+            if(currentlyNumber == '' && lastValue != ''){
+                change = document.getElementById("output1").value;
+                change[change.length-1] = digit;
+                return;
+            }
+
+            //both rows filled = operation
+            lastValue= document.getElementById("output1").value
+            lastNumber = parseFloat(lastValue.substr(0,lastValue.length-2))
+            currentlyNumber = parseFloat(currentlyNumber)
+            
+            console.log(lastNumber + " ultimo numero")
+            console.log(currentlyNumber + " numero atual")
+            console.log(lastValue[lastValue.length-1])
+            switch(lastValue[lastValue.length-1]){
+                case "+": result = lastNumber + currentlyNumber; break;
+                case "-": result = lastNumber - currentlyNumber; break;
+                case "X": result = lastNumber * currentlyNumber; break;
+                case "/": result = lastNumber / currentlyNumber; break;
+                case "%": result = lastNumber % currentlyNumber; break;
+                default: break;
+            }
+            //second row -> empty, first row -> result
+            document.getElementById("output2").value = ""
+            document.getElementById("output1").value = result + " " + digit;
+            return;
+        }
+        function solveSqrt(){
+            if(!onoff) return;
+            var currentlyNumber = parseFloat(document.getElementById("output2").value);
+            result = Math.sqrt(currentlyNumber)
+            document.getElementById("output2").value = result;
+        }
+        function solveTotal(){
+            if(!onoff) return;
+            var currentlyValue = document.getElementById("output2").value;
+            var currentlyNumber = parseFloat(document.getElementById("output2").value);
+            var lastValue = document.getElementById("output1").value;
+            var lastNumber = parseFloat(lastValue.substr(0,lastValue.length-2));
+            var result;
+            
+            if(lastValue == '') return;
+            if(currentlyValue == ''){
+                document.getElementById("output2").value = lastNumber;
+                return;
+            }
+
+            switch(lastValue[lastValue.length-1]){
+                case "+": result = lastNumber + currentlyNumber; break;
+                case "-": result = lastNumber - currentlyNumber; break;
+                case "X": result = lastNumber * currentlyNumber; break;
+                case "/": result = lastNumber / currentlyNumber; break;
+                case "%": result = lastNumber % currentlyNumber; break;
+                default: break;
+            }
+            //first row -> empty, second row -> result
+            document.getElementById("output1").value = ""
+            document.getElementById("output2").value = result;
+            setClear = 1;
+            return;
+
+        }
+        function toggleOnOff(){
+            clearScreen();
+            clearScreen();
+            onoff = !onoff;
+            if(onoff){
+                document.getElementById("output").style.background = "#d8d7df"
+                document.getElementById("output1").style.borderBottom = "2px dashed #b5b0bb";
+                document.getElementById("output2").style.borderBottom = "2px dashed #b5b0bb";
+            }else {
+                document.getElementById("output").style.background = "#5a585c"
+                document.getElementById("output1").style.borderBottom = "none";
+                document.getElementById("output2").style.borderBottom = "none";
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="container">
+        <div id="output">
+            <input type="text" disabled="disabled" class="output-row" id="output1"> 
+            <input type="text" disabled="disabled" class="output-row" id="output2">
+        </div>
+        <table id="btns">
+            <tr class="btn-row">
+                <td><input type="button" value="On/Off" class="btn" id="onoff" onclick="toggleOnOff()"></td>
+                <td><input type="button" value="C" class="btn" id="clear" onclick="clearScreen()" ></td>
+            </tr>
+            <tr class="btn-row">
+                <td><input type="button" value="7" class="btn" onclick="writeNumber('7')"></td>
+                <td><input type="button" value="8" class="btn" onclick="writeNumber('8')"></td>
+                <td><input type="button" value="9" class="btn" onclick="writeNumber('9')"></td>
+                <td><input type="button" value="/" class="btn" onclick="solve('/')"></td>
+                <td><input type="button" value="√" class="btn" onclick="solveSqrt()"></td>
+            </tr>
+            <tr class="btn-row">
+                <td><input type="button" value="4" class="btn" onclick="writeNumber('4')"></td>
+                <td><input type="button" value="5" class="btn" onclick="writeNumber('5')"></td>
+                <td><input type="button" value="6" class="btn" onclick="writeNumber('6')"></td>
+                <td><input type="button" value="X" class="btn" onclick="solve('X')"></td>
+                <td><input type="button" value="%" class="btn" onclick="solve('%')"></td>
+            </tr>
+            <tr class="btn-row">
+                <td><input type="button" value="1" class="btn" onclick="writeNumber('1')"></td>
+                <td><input type="button" value="2" class="btn" onclick="writeNumber('2')"></td>
+                <td><input type="button" value="3" class="btn" onclick="writeNumber('3')"></td>
+                <td><input type="button" value="-" class="btn" onclick="solve('-')"></td>
+                <td><input type="button" value="=" class="btn" id="equals" onclick="solveTotal()"></td>
+            </tr>
+            <tr class="btn-row">
+                <td><input type="button" value="+/-" class="btn" onclick="switchSignal()"></td>
+                <td><input type="button" value="0" class="btn" onclick="writeNumber('0')"></td>
+                <td><input type="button" value="." class="btn" onclick="writeNumber('.')"></td>
+                <td><input type="button" value="+" class="btn" onclick="solve('+')"></td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>
